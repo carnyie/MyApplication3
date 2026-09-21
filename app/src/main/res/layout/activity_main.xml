@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:ignore="HardcodedText,Autofill,ButtonStyle">
 
     <TextView
         android:layout_width="wrap_content"
@@ -11,12 +13,13 @@
         android:text="Smart Pantry Manager"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="12dp" />
 
     <EditText
         android:id="@+id/etIngredientName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Ingredient Name (e.g., Milk)"
         android:inputType="text" />
 
@@ -24,16 +27,47 @@
         android:id="@+id/etQuantity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:hint="Quantity (e.g., 2)"
         android:inputType="number"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/btnAdd"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add to Pantry"
-        android:layout_marginBottom="16dp" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="Add Item" />
+
+        <Button
+            android:id="@+id/btnSuggestRecipe"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="Suggest Recipe" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvRecipeSuggestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="Suggestions will appear here..."
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:padding="8dp"
+        android:background="#F0F0F0"
+        android:layout_marginBottom="12dp" />
 
     <TextView
         android:layout_width="wrap_content"
