@@ -1,6 +1,9 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -12,6 +15,7 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private ListView listViewRecipes;
     private TextView tvEmptyState;
+    private List<String> matchingRecipes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,18 +27,31 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
         tvEmptyState = findViewById(R.id.tvEmptyState);
 
         loadSuggestedRecipes();
+
+        // Tap recipe to open RecipeDetailActivity
+        listViewRecipes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (matchingRecipes != null && position < matchingRecipes.size()) {
+                    String selectedRecipe = matchingRecipes.get(position);
+                    Intent intent = new Intent(SuggestedRecipesActivity.this, RecipeDetailActivity.class);
+                    intent.putExtra("RECIPE_NAME", selectedRecipe);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     private void loadSuggestedRecipes() {
-        List<String> matchingRecipes = dbHelper.getMatchingRecipes();
+        matchingRecipes = dbHelper.getMatchingRecipes();
 
         if (matchingRecipes.isEmpty()) {
             tvEmptyState.setText("No recipes match your pantry yet.\nAdd more ingredients!");
-            tvEmptyState.setVisibility(TextView.VISIBLE);
-            listViewRecipes.setVisibility(ListView.GONE);
+            tvEmptyState.setVisibility(View.VISIBLE);
+            listViewRecipes.setVisibility(View.GONE);
         } else {
-            tvEmptyState.setVisibility(TextView.GONE);
-            listViewRecipes.setVisibility(ListView.VISIBLE);
+            tvEmptyState.setVisibility(View.GONE);
+            listViewRecipes.setVisibility(View.VISIBLE);
 
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     this,
