@@ -55,6 +55,12 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:text="Suggest Recipe" />
+        <Button
+            android:id="@+id/btnSuggestedRecipes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Suggested Recipes Screen"
+            android:layout_marginTop="8dp" />
     </LinearLayout>
 
     <TextView

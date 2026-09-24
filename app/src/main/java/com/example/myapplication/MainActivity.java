@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -19,7 +20,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private EditText etIngredientName, etQuantity;
-    private Button btnAdd, btnSuggestRecipe;
+    private Button btnAdd, btnSuggestRecipe, btnSuggested;
     private TextView tvRecipeSuggestion;
     private ListView lvPantry;
     private DatabaseHelper dblHelper;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         etQuantity = findViewById(R.id.etQuantity);
         btnAdd = findViewById(R.id.btnAdd);
         btnSuggestRecipe = findViewById(R.id.btnSuggestRecipe);
+        btnSuggested = findViewById(R.id.btnSuggestedRecipes);
         tvRecipeSuggestion = findViewById(R.id.tvRecipeSuggestion);
         lvPantry = findViewById(R.id.lvPantry);
 
@@ -138,6 +140,17 @@ public class MainActivity extends AppCompatActivity {
                 suggestRecipes();
             }
         });
+
+        // Navigate to dedicated Suggested Recipes Activity
+        if (btnSuggested != null) {
+            btnSuggested.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, SuggestedRecipesActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     private void loadPantryItems() {

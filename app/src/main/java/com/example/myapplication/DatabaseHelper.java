@@ -117,6 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result > 0;
     }
 
+    //
     // Remove pantry item
     public boolean deletePantryItem(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
