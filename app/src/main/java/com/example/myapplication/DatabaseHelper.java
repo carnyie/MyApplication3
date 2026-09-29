@@ -15,7 +15,7 @@ import java.util.Set;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SmartPantry.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Pantry Table Constants
     public static final String TABLE_PANTRY = "pantry";
@@ -128,6 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // --- STRICT MATCHING ALGORITHM ---
 
     // Retrieves only recipes where ALL required ingredients exist in the pantry
+    // --- FLEXIBLE MATCHING ALGORITHM ---
     public List<String> getMatchingRecipes() {
         List<String> matchingRecipes = new ArrayList<>();
 
@@ -136,12 +137,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor pantryCursor = getAllPantryItems();
         if (pantryCursor.moveToFirst()) {
             do {
-                pantryIngredients.add(pantryCursor.getString(pantryCursor.getColumnIndexOrThrow(COLUMN_PANTRY_NAME)).toLowerCase());
+                String item = pantryCursor.getString(pantryCursor.getColumnIndexOrThrow(COLUMN_PANTRY_NAME)).toLowerCase().trim();
+                pantryIngredients.add(item);
+                // Handle basic plural matching ("eggs" -> "egg")
+                if (item.endsWith("s")) {
+                    pantryIngredients.add(item.substring(0, item.length() - 1));
+                }
             } while (pantryCursor.moveToNext());
         }
         pantryCursor.close();
 
-        // Evaluate recipes against available pantry ingredients
+        // If pantry is empty, return empty list
+        if (pantryIngredients.isEmpty()) {
+            return matchingRecipes;
+        }
+
+        // Evaluate recipes: Match if pantry contains ANY of the recipe's ingredients
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor recipeCursor = db.rawQuery("SELECT * FROM " + TABLE_RECIPES, null);
         if (recipeCursor.moveToFirst()) {
@@ -151,9 +162,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 List<String> requiredList = Arrays.asList(rawIngredients.toLowerCase().split("\\s*,\\s*"));
 
-                // Strict matching check: pantry MUST contain ALL required ingredients
-                if (pantryIngredients.containsAll(requiredList)) {
-                    matchingRecipes.add(title);
+                // Check if ANY required ingredient is in our pantry
+                for (String req : requiredList) {
+                    if (pantryIngredients.contains(req)) {
+                        matchingRecipes.add(title + " (Uses: " + req + ")");
+                        break; // Move to next recipe once matched
+                    }
                 }
             } while (recipeCursor.moveToNext());
         }

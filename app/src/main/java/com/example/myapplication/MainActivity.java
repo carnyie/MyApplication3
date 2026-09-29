@@ -93,14 +93,21 @@ public class MainActivity extends AppCompatActivity {
                 selectedItemId = pantryIds.get(position);
                 String fullText = pantryList.get(position);
 
-                // Parse out name and quantity to populate input fields
-                String name = fullText.substring(0, fullText.lastIndexOf(" (Qty:"));
-                String qtyStr = fullText.substring(fullText.lastIndexOf(" (Qty: ") + 7, fullText.length() - 1);
+                // Safe parsing of name and quantity
+                try {
+                    int qtyIndex = fullText.lastIndexOf(" (Qty: ");
+                    if (qtyIndex != -1) {
+                        String name = fullText.substring(0, qtyIndex);
+                        String qtyStr = fullText.substring(qtyIndex + 7, fullText.length() - 1);
 
-                etIngredientName.setText(name);
-                etQuantity.setText(qtyStr);
-                btnAdd.setText("Update Item");
-                Toast.makeText(MainActivity.this, "Editing: " + name, Toast.LENGTH_SHORT).show();
+                        etIngredientName.setText(name);
+                        etQuantity.setText(qtyStr);
+                        btnAdd.setText("Update Item");
+                        Toast.makeText(MainActivity.this, "Editing: " + name, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -158,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         pantryIds = new ArrayList<>();
 
         Cursor cursor = dblHelper.getAllPantryItems();
-        if (cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PANTRY_ID));
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PANTRY_NAME));
@@ -167,24 +174,31 @@ public class MainActivity extends AppCompatActivity {
                 pantryIds.add(id);
                 pantryList.add(name + " (Qty: " + qty + ")");
             } while (cursor.moveToNext());
+            cursor.close();
         }
-        cursor.close();
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pantryList);
         lvPantry.setAdapter(adapter);
     }
 
     private void suggestRecipes() {
+        // First check Database for matching recipes
         List<String> matchingRecipes = dblHelper.getMatchingRecipes();
 
-        if (matchingRecipes.isEmpty()) {
-            tvRecipeSuggestion.setText("No recipes matched your available pantry ingredients.");
-        } else {
+        if (matchingRecipes != null && !matchingRecipes.isEmpty()) {
             StringBuilder builder = new StringBuilder("Suggested Recipes:\n");
             for (String recipe : matchingRecipes) {
                 builder.append("• ").append(recipe).append("\n");
             }
             tvRecipeSuggestion.setText(builder.toString());
+        } else {
+            // Fallback check on typed ingredient
+            String ingredient = etIngredientName.getText().toString().trim();
+            if (!ingredient.isEmpty()) {
+                tvRecipeSuggestion.setText("Suggested Recipe: " + ingredient + " Omelette / Meal");
+            } else {
+                tvRecipeSuggestion.setText("No matching recipes. Add items to your pantry or enter an ingredient above!");
+            }
         }
     }
 }
